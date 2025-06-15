@@ -1,0 +1,59 @@
+/* Fix the sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 64px; /* Adjusted width to avoid overlap */
+  background-color: #ffffff; /* gray-800, unchanged */
+  transition: width 0.3s ease;
+  z-index: 1000;
+}
+.sidebar.expanded {
+  width: 256px; /* Original width when expanded */
+}
+.sidebar .content {
+  height: 100%;
+  overflow-y: auto;
+}
+/* Adjust main content to account for fixed sidebar and prevent footer overlap */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin-left: 64px; /* Match sidebar width when collapsed */
+  width: calc(100% - 64px); /* Ensure main content takes remaining width */
+}
+.main-content .content-wrapper {
+  flex: 1 0 auto;
+  padding-bottom: 60px; /* Space for footer, adjust based on footer height */
+}
+footer {
+  flex-shrink: 0;
+  position: relative; /* Ensure footer stays at bottom of content */
+  width: calc(100% - 64px); /* Match main content width */
+  margin-left: 64px; /* Align with main content margin */
+}
+/* Style for expanded state (optional toggle via JavaScript) */
+.sidebar.expanded .menu-item span {
+  display: inline;
+}
+.sidebar .menu-item span {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidebar {
+    width: 256px; /* Default expanded width on larger screens */
+  }
+  .sidebar .menu-item span {
+    display: inline;
+  }
+  .main-content {
+    margin-left: 256px; /* Match expanded sidebar width */
+    width: calc(100% - 256px);
+  }
+  footer {
+    width: calc(100% - 256px);
+    margin-left: 256px;
+  }
+}

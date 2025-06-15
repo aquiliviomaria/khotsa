@@ -19,62 +19,7 @@
     <link rel="stylesheet" href="css/styles.css" />
     <licnk rel="stylesheet" href="css/user-info.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      /* Permite que menu.js controle a visibilidade dos itens do menu */
-      .menu-item {
-        display: flex;
-      }
-
-      /* Fix the sidebar */
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 64px; /* Adjusted width to avoid overlap */
-        background-color: #ffffff; /* gray-800, unchanged */
-        transition: width 0.3s ease;
-        z-index: 1000;
-      }
-      .sidebar.expanded {
-        width: 256px; /* Original width when expanded */
-      }
-      .sidebar .content {
-        height: 100%;
-        overflow-y: auto;
-      }
-      /* Adjust main content to account for fixed sidebar */
-      .main-content {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        margin-left: 64px; /* Match sidebar width when collapsed */
-      }
-      .main-content .content-wrapper {
-        flex: 1 0 auto;
-      }
-      footer {
-        flex-shrink: 0;
-      }
-      /* Style for expanded state (optional toggle via JavaScript) */
-      .sidebar.expanded .menu-item span {
-        display: inline;
-      }
-      .sidebar .menu-item span {
-        display: none;
-      }
-      @media (min-width: 768px) {
-        .sidebar {
-          width: 256px; /* Default expanded width on larger screens */
-        }
-        .sidebar .menu-item span {
-          display: inline;
-        }
-        .main-content {
-          margin-left: 256px; /* Match expanded sidebar width */
-        }
-      }
-    </style>
+   <link rel="stylesheet" href="css/dashboard.css">
   </head>
   <body class="bg-gray-100">
     <!-- Sidebar -->

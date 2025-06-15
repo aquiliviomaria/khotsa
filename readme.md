@@ -92,12 +92,16 @@ O sistema está disponível online via [Vercel](https://vercel.com), permitindo 
 | `visitantes.html` | Cadastro de Visitantes (em desenvolvimento)   |
 | `admin.html`      | Gerenciamento de Utilizadores (somente Admin) |
 
+---
+
 ## 👥 Autores
 
 - Aquilívio Maria
 - Marcos Paixão
 - Letícia Jonhson
 - Maica Lucía
+
+---
 
 **Docente Orientador**: Eng. Santos Macuma  
 **Universidade Metodista Unida de Moçambique – Campus Cambine**  

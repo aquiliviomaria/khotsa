@@ -29,74 +29,7 @@
         window.jsPDF = window.jspdf.jsPDF;
       </script>
       
-    <style>
-      .card-hover {
-        transition: all 0.3s ease;
-      }
-      .card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      }
-      .stat-card {
-        border-left: 4px solid;
-      }
-      .badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-      }
-      .dropdown:hover .dropdown-menu {
-        display: block;
-      }
-      .menu-item {
-        display: flex;
-      }
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 64px;
-        background-color: #ffffff; 
-        transition: width 0.3s ease;
-        z-index: 1000;
-      }
-      .sidebar.expanded {
-        width: 256px;
-      }
-      .sidebar .content {
-        height: 100%;
-        overflow-y: auto;
-      }
-      .main-content {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        margin-left: 64px;
-      }
-      .main-content .content-wrapper {
-        flex: 1 0 auto;
-      }
-      footer {
-        flex-shrink: 0;
-      }
-      .sidebar.expanded .menu-item span {
-        display: inline;
-      }
-      .sidebar .menu-item span {
-        display: none;
-      }
-      @media (min-width: 768px) {
-        .sidebar {
-          width: 256px;
-        }
-        .sidebar .menu-item span {
-          display: inline;
-        }
-        .main-content {
-          margin-left: 256px;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="css/relatorios.css">
   </head>
   <body class="bg-gray-50">
     <!-- Sidebar -->
