@@ -1,241 +1,65 @@
-import {
-  db,
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-} from "./firebase.js";
+// Armazenamento de visitantes e visitas
+let visitors = JSON.parse(localStorage.getItem("visitors")) || [];
+let visits = JSON.parse(localStorage.getItem("visits")) || [];
 
-// Referências às coleções
-const visitorsRef = collection(db, "visitors");
-const visitsRef = collection(db, "visits");
-const prisonersRef = collection(db, "prisoners");
+// Inicializa o formulário e tabelas
+document.addEventListener("DOMContentLoaded", function () {
+  // Carrega prisioneiros no select
+  loadPrisonersSelect();
 
-// Carrega prisioneiros para o select
-async function loadPrisonersForSelect() {
-  const select = document.getElementById("prisonerSelect");
-  if (!select) return;
-
-  try {
-    const q = query(prisonersRef, orderBy("fullName"));
-    const querySnapshot = await getDocs(q);
-    select.innerHTML = '<option value="">Selecione um prisioneiro</option>';
-
-    querySnapshot.forEach((doc) => {
-      const prisoner = doc.data();
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = `${prisoner.fullName} (${prisoner.processNumber})`;
-      select.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar prisioneiros:", error);
-    showError("Não foi possível carregar a lista de prisioneiros");
-  }
-}
-
-// Carrega visitantes
-async function loadVisitors(searchTerm = "") {
-  const tableBody = document.getElementById("visitorsTable");
-  if (!tableBody) return;
-
-  try {
-    let q;
-    if (searchTerm) {
-      q = query(
-        visitorsRef,
-        where("name", ">=", searchTerm),
-        where("name", "<=", searchTerm + "\uf8ff")
-      );
-    } else {
-      q = query(visitorsRef, orderBy("createdAt", "desc"));
-    }
-
-    const querySnapshot = await getDocs(q);
-    tableBody.innerHTML = "";
-
-    if (querySnapshot.empty) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-            Nenhum visitante encontrado
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    // Carrega os prisioneiros para mapear IDs para nomes
-    const prisonersSnapshot = await getDocs(prisonersRef);
-    const prisonersMap = {};
-    prisonersSnapshot.forEach((doc) => {
-      prisonersMap[doc.id] = doc.data().fullName;
-    });
-
-    querySnapshot.forEach((doc) => {
-      const visitor = doc.data();
-      const row = document.createElement("tr");
-      row.className = "hover:bg-gray-50";
-      row.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap">
-          <img src="${visitor.photo || "https://via.placeholder.com/150"}" 
-               alt="${visitor.name}" 
-               class="h-10 w-10 rounded-full object-cover">
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <div class="text-sm font-medium text-gray-900">${visitor.name}</div>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${visitor.document}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${prisonersMap[visitor.prisonerId] || "N/A"}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${visitor.relation}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <button class="view-visitor-btn text-blue-600 hover:text-blue-900 mr-3" 
-                  data-id="${doc.id}" title="Ver detalhes">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="register-visit-btn text-indigo-600 hover:text-indigo-900 mr-3" 
-                  data-id="${doc.id}" title="Registrar visita">
-            <i class="fas fa-calendar-check"></i>
-          </button>
-          <button class="delete-visitor-btn text-red-600 hover:text-red-900" 
-                  data-id="${doc.id}" title="Excluir">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      `;
-      tableBody.appendChild(row);
-    });
-
-    // Configura botões
-    setupViewVisitorButtons();
-    setupVisitButtons();
-    setupDeleteVisitorButtons();
-  } catch (error) {
-    console.error("Erro ao carregar visitantes:", error);
-    showError("Não foi possível carregar a lista de visitantes");
-  }
-}
-
-// Carrega histórico de visitas
-async function loadVisitsHistory() {
-  const tableBody = document.getElementById("visitsHistoryTable");
-  if (!tableBody) return;
-
-  try {
-    const q = query(visitsRef, orderBy("date", "desc"));
-    const querySnapshot = await getDocs(q);
-    tableBody.innerHTML = "";
-
-    if (querySnapshot.empty) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-            Nenhuma visita registrada
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    // Carrega visitantes e prisioneiros para mapear IDs para nomes
-    const [visitorsSnapshot, prisonersSnapshot] = await Promise.all([
-      getDocs(visitorsRef),
-      getDocs(prisonersRef),
-    ]);
-
-    const visitorsMap = {};
-    visitorsSnapshot.forEach((doc) => {
-      visitorsMap[doc.id] = doc.data().name;
-    });
-
-    const prisonersMap = {};
-    prisonersSnapshot.forEach((doc) => {
-      prisonersMap[doc.id] = doc.data().fullName;
-    });
-
-    querySnapshot.forEach((doc) => {
-      const visit = doc.data();
-      const row = document.createElement("tr");
-      row.className = "hover:bg-gray-50";
-      row.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${formatDateTime(visit.date)}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${visitorsMap[visit.visitorId] || "N/A"}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${prisonersMap[visit.prisonerId] || "N/A"}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                      ${getVisitTypeBadgeClass(visit.type)}">
-            ${visit.type}
-          </span>
-        </td>
-        <td class="px-6 py-4 text-sm text-gray-500">
-          ${visit.notes || "-"}
-        </td>
-      `;
-      tableBody.appendChild(row);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar histórico de visitas:", error);
-    showError("Não foi possível carregar o histórico de visitas");
-  }
-}
-
-// Configura o formulário de cadastro de visitante
-function setupVisitorForm() {
-  const form = document.getElementById("visitorForm");
-  if (!form) return;
-
-  // Preview da foto
+  // Preview da foto do visitante
   const photoInput = document.getElementById("visitorPhoto");
   const photoPreview = document.getElementById("visitorPhotoPreview");
 
-  photoInput.addEventListener("change", function () {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        photoPreview.src = e.target.result;
+  if (photoInput && photoPreview) {
+    photoInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          photoPreview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Formulário de cadastro de visitante
+  const visitorForm = document.getElementById("visitorForm");
+  if (visitorForm) {
+    visitorForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Coleta os dados do formulário
+      const formData = new FormData(this);
+      const visitorData = {
+        id: Date.now().toString(),
+        fullName: formData.get("visitorName"),
+        document: formData.get("visitorDocument"),
+        relation: formData.get("visitorRelation"),
+        prisonerId: formData.get("prisonerSelect"),
+        photo: photoPreview.src,
+        createdAt: new Date().toISOString(),
+        active: true,
       };
-      reader.readAsDataURL(file);
-    }
-  });
 
-  // Submissão do formulário
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+      // Verifica se o documento já está cadastrado
+      if (visitors.some((v) => v.document === visitorData.document)) {
+        Swal.fire({
+          icon: "error",
+          title: "Documento já cadastrado",
+          text: "Já existe um visitante com este documento no sistema.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        return;
+      }
 
-    const formData = new FormData(this);
-    const visitorData = {
-      name: formData.get("visitorName"),
-      document: formData.get("visitorDocument"),
-      relation: formData.get("visitorRelation"),
-      prisonerId: formData.get("prisonerSelect"),
-      photo: photoPreview.src,
-      createdAt: serverTimestamp(),
-    };
+      // Adiciona ao array e salva no localStorage
+      visitors.push(visitorData);
+      localStorage.setItem("visitors", JSON.stringify(visitors));
 
-    try {
-      await addDoc(visitorsRef, visitorData);
-
+      // Feedback ao usuário
       Swal.fire({
         icon: "success",
         title: "Visitante cadastrado!",
@@ -243,165 +67,203 @@ function setupVisitorForm() {
         timer: 2000,
         showConfirmButton: false,
       }).then(() => {
-        form.reset();
+        this.reset();
         photoPreview.src = "https://via.placeholder.com/150";
-        loadVisitors();
+        loadVisitorsTable(); // Atualiza a tabela
       });
-    } catch (error) {
-      console.error("Erro ao cadastrar visitante:", error);
-      showError("Não foi possível cadastrar o visitante");
-    }
-  });
-}
-
-// Configura botões de visualização de detalhes
-function setupViewVisitorButtons() {
-  document.querySelectorAll(".view-visitor-btn").forEach((btn) => {
-    btn.addEventListener("click", async function () {
-      const visitorId = this.getAttribute("data-id");
-      showVisitorDetails(visitorId);
     });
-  });
-}
-
-// Mostra detalhes do visitante
-async function showVisitorDetails(visitorId) {
-  try {
-    const [visitorDoc, visitsSnapshot] = await Promise.all([
-      getDoc(doc(db, "visitors", visitorId)),
-      getDocs(
-        query(
-          visitsRef,
-          where("visitorId", "==", visitorId),
-          orderBy("date", "desc"),
-          limit(5)
-        )
-      ),
-    ]);
-
-    if (!visitorDoc.exists()) {
-      showError("Visitante não encontrado");
-      return;
-    }
-
-    const visitor = visitorDoc.data();
-    const prisonerDoc = await getDoc(doc(db, "prisoners", visitor.prisonerId));
-    const prisonerName = prisonerDoc.exists()
-      ? prisonerDoc.data().fullName
-      : "N/A";
-
-    // Preenche os detalhes
-    document.getElementById(
-      "detailVisitorTitle"
-    ).textContent = `Detalhes: ${visitor.name}`;
-    document.getElementById("detailVisitorPhoto").src =
-      visitor.photo || "https://via.placeholder.com/150";
-    document.getElementById("detailVisitorName").textContent = visitor.name;
-    document.getElementById("detailVisitorDocument").textContent =
-      visitor.document;
-    document.getElementById("detailVisitorRelation").textContent =
-      visitor.relation;
-    document.getElementById("detailPrisonerName").textContent = prisonerName;
-    document.getElementById("detailVisitorCreatedAt").textContent =
-      formatDateTime(visitor.createdAt?.toDate());
-
-    // Preenche as últimas visitas
-    const visitsContainer = document.getElementById("visitorLastVisits");
-    visitsContainer.innerHTML = "";
-
-    if (visitsSnapshot.empty) {
-      visitsContainer.innerHTML =
-        '<p class="text-sm text-gray-500">Nenhuma visita registrada</p>';
-    } else {
-      visitsSnapshot.forEach((doc) => {
-        const visit = doc.data();
-        const visitElement = document.createElement("div");
-        visitElement.className = "text-sm";
-        visitElement.innerHTML = `
-          <p class="font-medium">${formatDate(visit.date)} - ${visit.type}</p>
-          <p class="text-gray-500 truncate">${
-            visit.notes || "Sem observações"
-          }</p>
-        `;
-        visitsContainer.appendChild(visitElement);
-      });
-    }
-
-    // Mostra o modal
-    document.getElementById("visitorDetailModal").classList.remove("hidden");
-  } catch (error) {
-    console.error("Erro ao carregar detalhes do visitante:", error);
-    showError("Não foi possível carregar os detalhes do visitante");
   }
-}
 
-// Configura botões de registro de visita
-function setupVisitButtons() {
-  document.querySelectorAll(".register-visit-btn").forEach((btn) => {
-    btn.addEventListener("click", async function () {
-      const visitorId = this.getAttribute("data-id");
-      document.getElementById("visitorId").value = visitorId;
+  // Listagem de visitantes
+  if (document.getElementById("visitorsTable")) {
+    loadVisitorsTable();
+    setupVisitorSearch();
+  }
 
-      // Define a data/hora atual como padrão
-      const now = new Date();
-      const formattedDateTime = now.toISOString().slice(0, 16);
-      document.getElementById("visitDate").value = formattedDateTime;
+  // Histórico de visitas
+  if (document.getElementById("visitsHistoryTable")) {
+    loadVisitsHistory();
+  }
 
-      // Mostra o modal
-      document.getElementById("visitModal").classList.remove("hidden");
-    });
+  // Configura os modais
+  setupVisitModal();
+  setupVisitorDetailModal();
+});
+
+// Carrega prisioneiros no select
+function loadPrisonersSelect() {
+  const select = document.getElementById("prisonerSelect");
+  if (!select) return;
+
+  const prisoners = JSON.parse(localStorage.getItem("prisoners")) || [];
+
+  // Limpa opções existentes (mantendo a primeira opção vazia)
+  select.innerHTML = '<option value="">Selecione um prisioneiro</option>';
+
+  prisoners.forEach((prisoner) => {
+    const option = document.createElement("option");
+    option.value = prisoner.id;
+    option.textContent = `${prisoner.fullName} (${prisoner.processNumber})`;
+    select.appendChild(option);
   });
 }
 
-// Configura botões de exclusão de visitante
-function setupDeleteVisitorButtons() {
-  document.querySelectorAll(".delete-visitor-btn").forEach((btn) => {
-    btn.addEventListener("click", async function () {
-      const visitorId = this.getAttribute("data-id");
+// Carrega a tabela de visitantes
+function loadVisitorsTable(filteredVisitors = null) {
+  const tableBody = document.getElementById("visitorsTable");
+  const data = filteredVisitors || visitors;
+  const prisoners = JSON.parse(localStorage.getItem("prisoners")) || [];
 
-      Swal.fire({
-        title: "Tem certeza?",
-        text: "Você não poderá reverter isso! Todas as visitas associadas também serão removidas.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Sim, excluir!",
-        cancelButtonText: "Cancelar",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          try {
-            // Remove todas as visitas associadas primeiro
-            const visitsQuery = query(
-              visitsRef,
-              where("visitorId", "==", visitorId)
-            );
-            const visitsSnapshot = await getDocs(visitsQuery);
+  tableBody.innerHTML = "";
 
-            const deletePromises = visitsSnapshot.docs.map((doc) =>
-              deleteDoc(doc.ref)
-            );
+  if (data.length === 0) {
+    tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    Nenhum visitante encontrado
+                </td>
+            </tr>
+        `;
+    return;
+  }
 
-            await Promise.all(deletePromises);
+  data.forEach((visitor) => {
+    const prisoner = prisoners.find((p) => p.id === visitor.prisonerId) || {};
 
-            // Remove o visitante
-            await deleteDoc(doc(db, "visitors", visitorId));
+    const row = document.createElement("tr");
+    row.className = "hover:bg-gray-50 transition duration-150";
+    row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <img src="${visitor.photo}" alt="${
+      visitor.fullName
+    }" class="h-10 w-10 rounded-full object-cover">
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${
+                  visitor.fullName
+                }</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${visitor.document}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${prisoner.fullName || "N/A"}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${visitor.relation}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="detail-btn text-blue-600 hover:text-blue-900 mr-3" data-id="${
+                  visitor.id
+                }">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="visit-btn text-green-600 hover:text-green-900 mr-3" data-id="${
+                  visitor.id
+                }">
+                    <i class="fas fa-calendar-plus"></i>
+                </button>
+                <button class="${
+                  visitor.active
+                    ? "deactivate-btn text-yellow-600 hover:text-yellow-900"
+                    : "activate-btn text-green-600 hover:text-green-900"
+                } mr-3" data-id="${visitor.id}">
+                    <i class="fas ${
+                      visitor.active ? "fa-user-slash" : "fa-user-check"
+                    }"></i>
+                </button>
+                <button class="delete-btn text-red-600 hover:text-red-900" data-id="${
+                  visitor.id
+                }">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+    tableBody.appendChild(row);
+  });
 
-            // Recarrega as listas
-            await Promise.all([loadVisitors(), loadVisitsHistory()]);
+  // Configura botões de ação
+  setupDetailButtons();
+  setupVisitButtons();
+  setupActivateButtons();
+  setupDeleteButtons();
+}
 
-            Swal.fire(
-              "Excluído!",
-              "O visitante e todas as suas visitas foram removidos do sistema.",
-              "success"
-            );
-          } catch (error) {
-            console.error("Erro ao excluir visitante:", error);
-            showError("Não foi possível excluir o visitante");
-          }
-        }
-      });
+// Configura a busca de visitantes
+function setupVisitorSearch() {
+  const searchInput = document.getElementById("visitorSearch");
+  if (!searchInput) return;
+
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase();
+
+    const filtered = visitors.filter((visitor) => {
+      return (
+        visitor.fullName.toLowerCase().includes(searchTerm) ||
+        visitor.document.toLowerCase().includes(searchTerm) ||
+        visitor.relation.toLowerCase().includes(searchTerm)
+      );
     });
+
+    loadVisitorsTable(filtered);
+  });
+}
+
+// Carrega o histórico de visitas
+function loadVisitsHistory(filteredVisits = null) {
+  const tableBody = document.getElementById("visitsHistoryTable");
+  const data = filteredVisits || visits;
+  const prisoners = JSON.parse(localStorage.getItem("prisoners")) || [];
+
+  tableBody.innerHTML = "";
+
+  if (data.length === 0) {
+    tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                    Nenhuma visita registrada
+                </td>
+            </tr>
+        `;
+    return;
+  }
+
+  // Ordena por data (mais recente primeiro)
+  data.sort((a, b) => new Date(b.visitDate) - new Date(a.visitDate));
+
+  data.forEach((visit) => {
+    const visitor = visitors.find((v) => v.id === visit.visitorId) || {};
+    const prisoner = prisoners.find((p) => p.id === visit.prisonerId) || {};
+
+    const row = document.createElement("tr");
+    row.className = "hover:bg-gray-50 transition duration-150";
+    row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDateTime(visit.visitDate)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${
+                  visitor.fullName || "N/A"
+                }</div>
+                <div class="text-sm text-gray-500">${
+                  visitor.document || ""
+                }</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${prisoner.fullName || "N/A"}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getVisitTypeBadgeClass(
+                  visit.visitType
+                )}">
+                    ${visit.visitType}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${visit.notes || "-"}
+            </td>
+        `;
+    tableBody.appendChild(row);
   });
 }
 
@@ -424,46 +286,38 @@ function setupVisitModal() {
   cancelBtn.addEventListener("click", closeModal);
 
   // Submissão do formulário de visita
-  visitForm.addEventListener("submit", async function (e) {
+  visitForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const visitorId = document.getElementById("visitorId").value;
     const visitData = {
-      visitorId: visitorId,
-      date: document.getElementById("visitDate").value,
-      type: document.getElementById("visitType").value,
+      id: Date.now().toString(),
+      visitorId: document.getElementById("visitorId").value,
+      prisonerId:
+        visitors.find(
+          (v) => v.id === document.getElementById("visitorId").value
+        )?.prisonerId || "",
+      visitDate: document.getElementById("visitDate").value,
+      visitType: document.getElementById("visitType").value,
       notes: document.getElementById("visitNotes").value,
-      registeredAt: serverTimestamp(),
+      registeredAt: new Date().toISOString(),
+      registeredBy: "current_user_id", // Você deve substituir pelo ID do usuário logado
     };
 
-    try {
-      // Obtém o prisonerId associado ao visitante
-      const visitorDoc = await getDoc(doc(db, "visitors", visitorId));
-      if (visitorDoc.exists()) {
-        visitData.prisonerId = visitorDoc.data().prisonerId;
+    // Adiciona ao array e salva no localStorage
+    visits.push(visitData);
+    localStorage.setItem("visits", JSON.stringify(visits));
 
-        await addDoc(visitsRef, visitData);
-
-        Swal.fire({
-          icon: "success",
-          title: "Visita registrada!",
-          text: "A visita foi registrada com sucesso.",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
-          closeModal();
-          loadVisitsHistory();
-
-          // Atualiza a lista de visitantes se estiver na página
-          if (document.getElementById("visitorsTable")) {
-            loadVisitors();
-          }
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao registrar visita:", error);
-      showError("Não foi possível registrar a visita");
-    }
+    // Feedback ao usuário
+    Swal.fire({
+      icon: "success",
+      title: "Visita registrada!",
+      text: "A visita foi registrada com sucesso no sistema.",
+      timer: 2000,
+      showConfirmButton: false,
+    }).then(() => {
+      closeModal();
+      loadVisitsHistory(); // Atualiza o histórico
+    });
   });
 }
 
@@ -474,20 +328,172 @@ function setupVisitorDetailModal() {
 
   if (!modal) return;
 
+  // Fecha o modal
   closeBtn.addEventListener("click", function () {
     modal.classList.add("hidden");
   });
 }
 
-// Funções auxiliares
-function formatDate(dateString) {
-  if (!dateString) return "N/A";
-  const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-  return new Date(dateString).toLocaleDateString("pt-BR", options);
+// Configura botões de detalhes
+function setupDetailButtons() {
+  document.querySelectorAll(".detail-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      const visitor = visitors.find((v) => v.id === id);
+      const prisoners = JSON.parse(localStorage.getItem("prisoners")) || [];
+      const prisoner = prisoners.find((p) => p.id === visitor?.prisonerId);
+
+      if (visitor) {
+        // Preenche os detalhes
+        document.getElementById("detailVisitorTitle").textContent =
+          visitor.fullName;
+        document.getElementById("detailVisitorName").textContent =
+          visitor.fullName;
+        document.getElementById("detailVisitorDocument").textContent =
+          visitor.document;
+        document.getElementById("detailVisitorRelation").textContent =
+          visitor.relation;
+        document.getElementById("detailPrisonerName").textContent =
+          prisoner?.fullName || "N/A";
+        document.getElementById("detailVisitorCreatedAt").textContent =
+          formatDateTime(visitor.createdAt);
+        document.getElementById("detailVisitorPhoto").src = visitor.photo;
+
+        // Carrega as últimas visitas
+        const visitorVisits = visits
+          .filter((v) => v.visitorId === visitor.id)
+          .sort((a, b) => new Date(b.visitDate) - new Date(a.visitDate))
+          .slice(0, 5);
+
+        const visitsContainer = document.getElementById("visitorLastVisits");
+        visitsContainer.innerHTML = "";
+
+        if (visitorVisits.length === 0) {
+          visitsContainer.innerHTML =
+            '<p class="text-sm text-gray-500">Nenhuma visita registrada</p>';
+        } else {
+          visitorVisits.forEach((visit) => {
+            const visitElement = document.createElement("div");
+            visitElement.className = "text-sm";
+            visitElement.innerHTML = `
+                            <p class="font-medium">${formatDateTime(
+                              visit.visitDate
+                            )}</p>
+                            <p class="text-gray-600">${visit.visitType} • ${
+              visit.notes || "Sem observações"
+            }</p>
+                        `;
+            visitsContainer.appendChild(visitElement);
+          });
+        }
+
+        // Mostra o modal
+        modal.classList.remove("hidden");
+      }
+    });
+  });
 }
 
-function formatDateTime(dateString) {
-  if (!dateString) return "N/A";
+// Configura botões de registro de visita
+function setupVisitButtons() {
+  document.querySelectorAll(".visit-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      const visitor = visitors.find((v) => v.id === id);
+
+      if (visitor) {
+        // Preenche o ID do visitante
+        document.getElementById("visitorId").value = visitor.id;
+
+        // Define a data/hora atual como padrão
+        const now = new Date();
+        const localDateTime = new Date(
+          now.getTime() - now.getTimezoneOffset() * 60000
+        )
+          .toISOString()
+          .slice(0, 16);
+        document.getElementById("visitDate").value = localDateTime;
+
+        // Mostra o modal
+        document.getElementById("visitModal").classList.remove("hidden");
+      }
+    });
+  });
+}
+
+// Configura botões de ativação/desativação
+function setupActivateButtons() {
+  document.querySelectorAll(".activate-btn, .deactivate-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      const visitorIndex = visitors.findIndex((v) => v.id === id);
+
+      if (visitorIndex !== -1) {
+        const action = visitors[visitorIndex].active ? "desativar" : "ativar";
+
+        Swal.fire({
+          title: `Confirmar ${action} visitante`,
+          text: `Tem certeza que deseja ${action} este visitante?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: `Sim, ${action}`,
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            visitors[visitorIndex].active = !visitors[visitorIndex].active;
+            localStorage.setItem("visitors", JSON.stringify(visitors));
+            loadVisitorsTable();
+
+            Swal.fire({
+              icon: "success",
+              title: "Sucesso!",
+              text: `Visitante ${action}do com sucesso.`,
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          }
+        });
+      }
+    });
+  });
+}
+
+// Configura botões de exclusão
+function setupDeleteButtons() {
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+
+      Swal.fire({
+        title: "Confirmar exclusão",
+        text: "Tem certeza que deseja excluir permanentemente este visitante?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sim, excluir!",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          visitors = visitors.filter((v) => v.id !== id);
+          localStorage.setItem("visitors", JSON.stringify(visitors));
+          loadVisitorsTable();
+
+          Swal.fire(
+            "Excluído!",
+            "O visitante foi removido do sistema.",
+            "success"
+          );
+        }
+      });
+    });
+  });
+}
+
+// Funções auxiliares
+function formatDateTime(dateTimeString) {
   const options = {
     day: "2-digit",
     month: "2-digit",
@@ -495,59 +501,22 @@ function formatDateTime(dateString) {
     hour: "2-digit",
     minute: "2-digit",
   };
-  return new Date(dateString).toLocaleDateString("pt-BR", options);
+  return new Date(dateTimeString).toLocaleDateString("pt-BR", options);
 }
 
 function getVisitTypeBadgeClass(type) {
   switch (type) {
-    case "Familiar":
+    case "Social":
       return "bg-blue-100 text-blue-800";
+    case "Familiar":
+      return "bg-green-100 text-green-800";
     case "Advogado":
       return "bg-purple-100 text-purple-800";
     case "Médico":
-      return "bg-green-100 text-green-800";
+      return "bg-red-100 text-red-800";
     case "Religioso":
-      return "bg-indigo-100 text-indigo-800";
+      return "bg-yellow-100 text-yellow-800";
     default:
       return "bg-gray-100 text-gray-800";
   }
 }
-
-function showError(message) {
-  Swal.fire({
-    icon: "error",
-    title: "Erro",
-    text: message,
-    timer: 3000,
-  });
-}
-
-// Inicialização
-document.addEventListener("DOMContentLoaded", async function () {
-  await loadPrisonersForSelect();
-  await loadVisitors();
-  await loadVisitsHistory();
-  setupVisitorForm();
-  setupVisitModal();
-  setupVisitorDetailModal();
-
-  // Configura busca de visitantes
-  const searchInput = document.getElementById("visitorSearch");
-  if (searchInput) {
-    let searchTimeout;
-
-    searchInput.addEventListener("input", function () {
-      clearTimeout(searchTimeout);
-      const searchTerm = this.value.trim();
-
-      if (searchTerm.length === 0) {
-        loadVisitors();
-        return;
-      }
-
-      searchTimeout = setTimeout(() => {
-        loadVisitors(searchTerm);
-      }, 500);
-    });
-  }
-});

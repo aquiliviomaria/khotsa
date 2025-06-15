@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Khosta Penal - Cadastro</title>
+    <title>Khosta - Cadastro</title>
+    <link rel="icon" href="data:," />
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -17,124 +18,205 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 256px;
+        background-color: #ffffff;
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        transform: translateX(0);
+      }
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+      .sidebar .content {
+        height: 100%;
+        overflow-y: auto;
+      }
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+        margin-left: 0;
+      }
+      .main-content .content-wrapper {
+        flex: 1 0 auto;
+      }
+      footer {
+        flex-shrink: 0;
+      }
+      .error-field {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+        background: rgba(239, 68, 68, 0.1);
+      }
+      .error-label {
+        color: #ef4444 !important;
+      }
+      @media (min-width: 640px) {
+        .main-content {
+          margin-left: 256px;
+        }
+      }
+      @media (max-width: 640px) {
+        .sidebar {
+          width: 200px;
+        }
+        .form-container {
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+        .form-container form {
+          padding: 0.5rem;
+        }
+        label,
+        input,
+        select {
+          font-size: 0.75rem; /* text-xs */
+        }
+        .photo-preview-container img {
+          height: 4.5rem; /* h-18 */
+          width: 4.5rem; /* w-18 */
+        }
+      }
+    </style>
   </head>
-  <body class="bg-gray-100">
-    <!-- Sidebar -->
-    <div class="flex h-screen">
-      <div class="w-64 bg-gray-800 text-white shadow-lg">
-        <div class="p-4 border-b border-gray-700">
-          <div class="flex items-center space-x-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-8 w-8 text-indigo-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-              />
-            </svg>
-            <span class="text-xl font-bold">Khosta Penal</span>
-          </div>
-        </div>
-
+  <body class="bg-gray-50">
+    <div
+      class="sidebar hidden sm:block animate__animated animate__fadeInLeft"
+      id="sidebar"
+    >
+      <div class="p-4 border-b border-gray-700 flex items-center space-x-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 text-indigo-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
+          />
+        </svg>
+        <span class="text-xl font-bold">Khosta</span>
+      </div>
+      <div class="content">
         <nav class="p-4 space-y-2">
           <a
             href="dashboard.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuDashboard"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
           >
-            <i class="fas fa-tachometer-alt"></i>
+            <i class="fas fa-tachometer-alt w-5 text-center"></i>
             <span>Dashboard</span>
           </a>
           <a
             href="cadastro.html"
-            class="flex items-center space-x-2 px-4 py-2 bg-indigo-700 rounded-md text-white"
+            id="menuCadastro"
+            class="menu-item flex items-center space-x-2 px-4 py-2 bg-indigo-700 rounded-md text-white"
           >
-            <i class="fas fa-user-plus"></i>
+            <i class="fas fa-user-plus w-5 text-center"></i>
             <span>Cadastrar Prisioneiro</span>
           </a>
           <a
             href="lista.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuLista"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
           >
-            <i class="fas fa-list"></i>
+            <i class="fas fa-list w-5 text-center"></i>
             <span>Lista de Prisioneiros</span>
           </a>
           <a
             href="usuarios.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300 admin-only"
+            id="menuUsuarios"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300 admin-only"
           >
-            <i class="fas fa-users-cog"></i>
+            <i class="fas fa-users-cog w-5 text-center"></i>
             <span>Gerenciar Usuários</span>
           </a>
           <a
             href="visitantes.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuVisitantes"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
           >
-            <i class="fas fa-users"></i>
+            <i class="fas fa-users w-5 text-center"></i>
             <span>Visitantes</span>
           </a>
           <a
             href="relatorios.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuRelatorios"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
           >
-            <i class="fas fa-chart-bar"></i>
+            <i class="fas fa-chart-bar w-5 text-center"></i>
             <span>Relatórios</span>
           </a>
         </nav>
-
-        <div class="absolute bottom-0 w-full p-4 border-t border-gray-700">
+        <div class="p-4 border-t border-gray-700">
           <button
             id="logoutBtn"
             class="w-full flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
           >
-            <i class="fas fa-sign-out-alt"></i>
+            <i class="fas fa-sign-out-alt w-5 text-center"></i>
             <span>Sair</span>
           </button>
         </div>
       </div>
-
-      <!-- Main Content -->
-      <div class="flex-1 overflow-y-auto animate__animated animate__fadeIn">
-        <header class="bg-white shadow-sm">
-          <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-800">
+    </div>
+    <div class="main-content">
+      <header class="bg-white shadow-sm">
+        <div
+          class="flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4"
+        >
+          <div class="flex items-center">
+            <button
+              id="toggleSidebar"
+              class="sm:hidden text-gray-600 hover:text-gray-800 mr-4"
+            >
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-lg sm:text-2xl font-bold text-gray-800">
               Cadastro de Prisioneiros
             </h1>
-            <div class="flex items-center space-x-4">
-              <div class="relative">
-                <i
-                  class="fas fa-bell text-gray-500 hover:text-indigo-600 cursor-pointer transition duration-300"
-                ></i>
-                <span
-                  class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"
-                ></span>
-              </div>
-              <div class="flex items-center space-x-2">
-                <div
-                  class="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold"
-                >
-                  AD
-                </div>
-                <span class="text-gray-700">Admin</span>
-              </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="user-info-container"></div>
+            <div class="relative">
+              <i
+                class="fas fa-bell text-gray-500 hover:text-indigo-600 cursor-pointer"
+              ></i>
+              <span
+                class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"
+              ></span>
             </div>
           </div>
-        </header>
-
-        <main class="p-6">
-          <div class="bg-white rounded-lg shadow-md p-6">
-            <form id="prisonerForm" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Nome Completo -->
+        </div>
+      </header>
+      <div class="content-wrapper">
+        <main class="p-4 sm:p-6">
+          <div
+            class="bg-white rounded-lg shadow-md p-4 sm:p-6 card-hover form-container"
+          >
+            <form id="prisonerForm" class="space-y-4 sm:space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div class="space-y-2">
                   <label
                     for="fullName"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Nome Completo *</label
                   >
                   <input
@@ -142,16 +224,14 @@
                     id="fullName"
                     name="fullName"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                     placeholder="Nome completo do prisioneiro"
                   />
                 </div>
-
-                <!-- Data de Nascimento -->
                 <div class="space-y-2">
                   <label
                     for="birthDate"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Data de Nascimento *</label
                   >
                   <input
@@ -159,15 +239,31 @@
                     id="birthDate"
                     name="birthDate"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                   />
                 </div>
-
-                <!-- Número do Processo -->
+                <div class="space-y-2">
+                  <label
+                    for="gender"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
+                    >Sexo *</label
+                  >
+                  <select
+                    id="gender"
+                    name="gender"
+                    required
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
+                  >
+                    <option value="">Selecione o sexo</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
                 <div class="space-y-2">
                   <label
                     for="processNumber"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Número do Processo *</label
                   >
                   <input
@@ -175,23 +271,21 @@
                     id="processNumber"
                     name="processNumber"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                     placeholder="Número único do processo"
                   />
                 </div>
-
-                <!-- Crime Cometido -->
                 <div class="space-y-2">
                   <label
                     for="crime"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Crime Cometido *</label
                   >
                   <select
                     id="crime"
                     name="crime"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                   >
                     <option value="">Selecione um crime</option>
                     <option value="Furto">Furto</option>
@@ -204,12 +298,24 @@
                     <option value="Outro">Outro</option>
                   </select>
                 </div>
-
-                <!-- Data de Entrada -->
+                <div id="otherCrimeContainer" class="space-y-2 hidden">
+                  <label
+                    for="otherCrime"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
+                    >Especificar Outro Crime *</label
+                  >
+                  <input
+                    type="text"
+                    id="otherCrime"
+                    name="otherCrime"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
+                    placeholder="Descreva o crime"
+                  />
+                </div>
                 <div class="space-y-2">
                   <label
                     for="entryDate"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Data de Entrada *</label
                   >
                   <input
@@ -217,15 +323,13 @@
                     id="entryDate"
                     name="entryDate"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                   />
                 </div>
-
-                <!-- Pena Aplicada -->
                 <div class="space-y-2">
                   <label
                     for="sentence"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Pena Aplicada (anos) *</label
                   >
                   <input
@@ -234,23 +338,21 @@
                     name="sentence"
                     min="1"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                     placeholder="Número de anos da pena"
                   />
                 </div>
-
-                <!-- Situação Atual -->
                 <div class="space-y-2">
                   <label
                     for="status"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Situação Atual *</label
                   >
                   <select
                     id="status"
                     name="status"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                    class="w-full px-2 py-1 sm:px-4 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-xs sm:text-sm"
                   >
                     <option value="">Selecione a situação</option>
                     <option value="Preso">Preso</option>
@@ -261,21 +363,21 @@
                     <option value="Solto">Solto</option>
                   </select>
                 </div>
-
-                <!-- Foto do Prisioneiro -->
                 <div class="space-y-2">
                   <label
                     for="prisonerPhoto"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-xs sm:text-sm font-medium text-gray-700"
                     >Foto do Prisioneiro</label
                   >
-                  <div class="flex items-center space-x-4">
+                  <div
+                    class="flex items-center space-x-4 photo-preview-container"
+                  >
                     <div class="relative">
                       <img
                         id="photoPreview"
                         src="https://via.placeholder.com/150"
-                        alt="Preview"
-                        class="h-24 w-24 rounded-full object-cover border-2 border-gray-300"
+                        alt=""
+                        class="h-18 w-18 sm:h-24 sm:w-24 rounded-full object-cover border-2 border-gray-300"
                       />
                       <label
                         for="prisonerPhoto"
@@ -291,17 +393,16 @@
                         class="hidden"
                       />
                     </div>
-                    <span class="text-sm text-gray-500"
+                    <span class="text-xs sm:text-sm text-gray-500"
                       >Clique no ícone para adicionar foto</span
                     >
                   </div>
                 </div>
               </div>
-
-              <div class="pt-4">
+              <div class="pt-4 sm:pt-6">
                 <button
                   type="submit"
-                  class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="px-4 py-2 sm:px-6 sm:py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-xs sm:text-sm"
                 >
                   Cadastrar Prisioneiro
                 </button>
@@ -310,10 +411,54 @@
           </div>
         </main>
       </div>
+      <footer class="bg-white text-gray-800 p-4 border-t border-gray-200">
+        <div
+          class="flex justify-between items-center py-4 px-4 sm:px-6 border-t border-gray-200"
+        >
+          <p class="text-xs sm:text-sm text-gray-600">
+            © 2025 Khosta - Todos os direitos reservados
+          </p>
+          <div class="flex space-x-4">
+            <a
+              href="https://wa.me/258874544510?text=Olá%20Aquilvio,%20estou%20entrando%20em%20contato%20através%20do%20Khosta%20Penal!"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-green-500 hover:text-green-600 text-lg"
+            >
+              <i class="fab fa-whatsapp"></i>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/aquilivio-maria-cumbe"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-500 hover:text-blue-600 text-lg"
+            >
+              <i class="fab fa-linkedin"></i>
+            </a>
+            <a
+              href="https://github.com/aquiliviomaria/Khotsa-Penal"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-500 hover:text-gray-600 text-lg"
+            >
+              <i class="fab fa-github"></i>
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
-
+    <script>
+      document
+        .getElementById("toggleSidebar")
+        .addEventListener("click", function () {
+          const sidebar = document.getElementById("sidebar");
+          sidebar.classList.toggle("hidden");
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/auth.js"></script>
     <script src="js/prisioneiros.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/user-info.js"></script>
   </body>
 </html>

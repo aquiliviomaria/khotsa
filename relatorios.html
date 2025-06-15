@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Khosta Penal - Relatórios</title>
+    <title>Khosta - Relatórios Avançados</title>
+    <link rel="icon" href="data:," />
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -17,189 +18,422 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <link rel="stylesheet" href="css/styles.css" />
-  </head>
-  <body class="bg-gray-100">
-    <!-- Sidebar -->
-    <div class="flex h-screen">
-      <div class="w-64 bg-gray-800 text-white shadow-lg">
-        <div class="p-4 border-b border-gray-700">
-          <div class="flex items-center space-x-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-8 w-8 text-indigo-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-              />
-            </svg>
-            <span class="text-xl font-bold">Khosta Penal</span>
-          </div>
-        </div>
+    <link rel="stylesheet" href="css/user-info.css" />
 
-        <nav class="p-4 space-y-2">
+      <!-- Scripts -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <!-- No head -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+      <script>
+        window.jsPDF = window.jspdf.jsPDF;
+      </script>
+      
+    <style>
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .stat-card {
+        border-left: 4px solid;
+      }
+      .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+      .menu-item {
+        display: flex;
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 64px;
+        background-color: #ffffff; 
+        transition: width 0.3s ease;
+        z-index: 1000;
+      }
+      .sidebar.expanded {
+        width: 256px;
+      }
+      .sidebar .content {
+        height: 100%;
+        overflow-y: auto;
+      }
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin-left: 64px;
+      }
+      .main-content .content-wrapper {
+        flex: 1 0 auto;
+      }
+      footer {
+        flex-shrink: 0;
+      }
+      .sidebar.expanded .menu-item span {
+        display: inline;
+      }
+      .sidebar .menu-item span {
+        display: none;
+      }
+      @media (min-width: 768px) {
+        .sidebar {
+          width: 256px;
+        }
+        .sidebar .menu-item span {
+          display: inline;
+        }
+        .main-content {
+          margin-left: 256px;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <!-- Sidebar -->
+    <div class="sidebar animate__animated animate__fadeInLeft">
+      <div class="p-4 border-b border-gray-700 flex items-center space-x-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 text-indigo-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
+          />
+        </svg>
+        <span class="text-xl font-bold">Khosta</span>
+      </div>
+
+      <div class="content">
+        <nav class="p-4 space-y-1">
           <a
             href="dashboard.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuDashboard"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition"
           >
-            <i class="fas fa-tachometer-alt"></i>
+            <i class="fas fa-tachometer-alt w-5 text-center"></i>
             <span>Dashboard</span>
           </a>
           <a
             href="cadastro.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuCadastro"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition"
           >
-            <i class="fas fa-user-plus"></i>
+            <i class="fas fa-user-plus w-5 text-center"></i>
             <span>Cadastrar Prisioneiro</span>
           </a>
           <a
             href="lista.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            id="menuLista"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition"
           >
-            <i class="fas fa-list"></i>
+            <i class="fas fa-list w-5 text-center"></i>
             <span>Lista de Prisioneiros</span>
           </a>
-
           <a
             href="usuarios.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300 admin-only"
+            id="menuUsuarios"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition admin-only"
           >
-            <i class="fas fa-users-cog"></i>
+            <i class="fas fa-users-cog w-5 text-center"></i>
             <span>Gerenciar Usuários</span>
           </a>
           <a
             href="visitantes.html"
-            class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300 admin-only"
+            id="menuVisitantes"
+            class="menu-item flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition agent-only"
           >
-            <i class="fas fa-users"></i>
+            <i class="fas fa-users w-5 text-center"></i>
             <span>Visitantes</span>
           </a>
-
           <a
             href="relatorios.html"
-            class="flex items-center space-x-2 px-4 py-2 bg-indigo-700 rounded-md text-white"
+            id="menuRelatorios"
+            class="menu-item flex items-center space-x-2 px-4 py-2 bg-indigo-700 rounded-md text-white director-only"
           >
-            <i class="fas fa-chart-bar"></i>
+            <i class="fas fa-chart-bar w-5 text-center"></i>
             <span>Relatórios</span>
           </a>
         </nav>
 
-        <div class="absolute bottom-0 w-full p-4 border-t border-gray-700">
+        <div class="p-4 border-t border-gray-700">
           <button
             id="logoutBtn"
-            class="w-full flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition duration-300"
+            class="w-full flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 rounded-md transition"
           >
-            <i class="fas fa-sign-out-alt"></i>
+            <i class="fas fa-sign-out-alt w-5 text-center"></i>
             <span>Sair</span>
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- Main Content -->
-      <div class="flex-1 overflow-y-auto animate__animated animate__fadeIn">
-        <header class="bg-white shadow-sm">
-          <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-800">Relatórios</h1>
-            <div class="flex items-center space-x-4">
-              <div class="relative">
-                <i
-                  class="fas fa-bell text-gray-500 hover:text-indigo-600 cursor-pointer transition duration-300"
-                ></i>
-                <span
-                  class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"
-                ></span>
-              </div>
-              <div class="flex items-center space-x-2">
-                <div
-                  class="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold"
-                >
-                  AD
-                </div>
-                <span class="text-gray-700">Admin</span>
-              </div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <header class="bg-white shadow-sm">
+        <div class="flex justify-between items-center px-6 py-4">
+          <h1 class="text-2xl font-bold text-gray-800">
+            Relatórios Avançados
+          </h1>
+          <div class="flex items-center space-x-4">
+            
+            <div class="user-info-container">
+              <!-- Será preenchido pelo JavaScript -->
+            </div>
+            <div class="relative">
+              <i class="fas fa-bell text-gray-500 hover:text-indigo-600 cursor-pointer"></i>
+              <span class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
+      <div class="content-wrapper">
         <main class="p-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Relatório por Situação -->
-            <div
-              class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300"
-            >
-              <h2 class="text-xl font-bold text-gray-800 mb-4">
-                Distribuição por Situação
-              </h2>
-              <div class="flex justify-between items-center mb-4">
-                <p class="text-gray-600">
-                  Total de prisioneiros por situação atual
-                </p>
-                <button
-                  id="exportSituation"
-                  class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200 transition duration-300"
-                >
-                  Exportar
-                </button>
-              </div>
-              <div class="h-64" id="situationChart">
-                <!-- Gráfico será inserido aqui via JavaScript -->
-                <div
-                  class="h-full flex items-center justify-center bg-gray-100 rounded-md"
-                >
-                  <p class="text-gray-500">Gráfico será exibido aqui</p>
+          <!-- Filtros e Estatísticas Rápidas -->
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Filtros -->
+            <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">Filtros</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Data Inicial</label
+                  >
+                  <input
+                    type="date"
+                    id="startDate"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Data Final</label
+                  >
+                  <input
+                    type="date"
+                    id="endDate"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  />
                 </div>
               </div>
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Tipo de Relatório</label
+                >
+                <select
+                  id="reportType"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="all">Todos os Relatórios</option>
+                  <option value="prisoners">Prisioneiros</option>
+                  <option value="visitors">Visitantes</option>
+                  <option value="movements">Movimentações</option>
+                </select>
+              </div>
+              <button
+                id="applyFilters"
+                class="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+              >
+                Aplicar Filtros
+              </button>
             </div>
 
-            <!-- Relatório por Crime -->
-            <div
-              class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300"
-            >
-              <h2 class="text-xl font-bold text-gray-800 mb-4">
-                Distribuição por Crime
-              </h2>
-              <div class="flex justify-between items-center mb-4">
-                <p class="text-gray-600">
-                  Total de prisioneiros por tipo de crime
-                </p>
-                <button
-                  id="exportCrime"
-                  class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200 transition duration-300"
-                >
-                  Exportar
-                </button>
-              </div>
-              <div class="h-64" id="crimeChart">
-                <!-- Gráfico será inserido aqui via JavaScript -->
+            <!-- Estatísticas Rápidas -->
+            <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">Visão Geral</h2>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="stat-card bg-blue-50 border-blue-500 p-4 rounded">
+                  <p class="text-sm text-gray-500">Total Prisioneiros</p>
+                  <p class="text-2xl font-bold" id="totalPrisoners">0</p>
+                </div>
+                <div class="stat-card bg-green-50 border-green-500 p-4 rounded">
+                  <p class="text-sm text-gray-500">Visitantes Ativos</p>
+                  <p class="text-2xl font-bold" id="totalVisitors">0</p>
+                </div>
                 <div
-                  class="h-full flex items-center justify-center bg-gray-100 rounded-md"
+                  class="stat-card bg-purple-50 border-purple-500 p-4 rounded"
                 >
-                  <p class="text-gray-500">Gráfico será exibido aqui</p>
+                  <p class="text-sm text-gray-500">Visitas (30 dias)</p>
+                  <p class="text-2xl font-bold" id="recentVisits">0</p>
+                </div>
+                <div
+                  class="stat-card bg-yellow-50 border-yellow-500 p-4 rounded"
+                >
+                  <p class="text-sm text-gray-500">Penas Próximas</p>
+                  <p class="text-2xl font-bold" id="endingSoon">0</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Penas que Terminam em Breve -->
-          <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">
-              Penas que Terminam em Breve
-            </h2>
+          <!-- Tabelas de Dados -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Penas que Terminam em Breve -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">
+                  Penas Próximas do Término
+                </h2>
+                <div class="flex space-x-2">
+                  <button
+                    id="exportEndingSoon"
+                    class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200"
+                  >
+                    Exportar
+                  </button>
+                  <button
+                    class="px-3 py-1 bg-gray-100 text-gray-600 rounded-md text-sm hover:bg-gray-200"
+                    onclick="toggleTableVisibility('endingSoonTable')"
+                  >
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Prisioneiro
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Crime
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Término
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Dias Restantes
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="endingSoonTable"
+                    class="bg-white divide-y divide-gray-200"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Histórico de Movimentações -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">
+                  Últimas Movimentações
+                </h2>
+                <div class="flex space-x-2">
+                  <button
+                    id="exportHistory"
+                    class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200"
+                  >
+                    Exportar
+                  </button>
+                  <button
+                    class="px-3 py-1 bg-gray-100 text-gray-600 rounded-md text-sm hover:bg-gray-200"
+                    onclick="toggleTableVisibility('historyTable')"
+                  >
+                    <i class="fas fa-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Data
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Tipo
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Detalhes
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      ></th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="historyTable"
+                    class="bg-white divide-y divide-gray-200"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista Completa de Visitantes -->
+          <div class="bg-white rounded-lg shadow-md p-6 mt-6">
             <div class="flex justify-between items-center mb-4">
-              <p class="text-gray-600">
-                Prisioneiros com penas terminando nos próximos 6 meses
-              </p>
-              <button
-                id="exportEndingSoon"
-                class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200 transition duration-300"
+              <h2 class="text-xl font-bold text-gray-800">
+                Visitantes Cadastrados
+              </h2>
+              <div class="flex space-x-2">
+                <button
+                  id="exportVisitorsList"
+                  class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200"
+                >
+                  Exportar
+                </button>
+                <button
+                  class="px-3 py-1 bg-gray-100 text-gray-600 rounded-md text-sm hover:bg-gray-200"
+                  onclick="toggleTableVisibility('visitorsTable')"
+                >
+                  <i class="fas fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mb-4 flex justify-between">
+              <div class="relative w-full max-w-xs">
+                <input
+                  type="text"
+                  id="searchVisitors"
+                  placeholder="Pesquisar visitante..."
+                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <i
+                  class="fas fa-search absolute left-3 top-3 text-gray-400"
+                ></i>
+              </div>
+              <select
+                id="visitorFilter"
+                class="ml-2 px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               >
-                Exportar
-              </button>
+                <option value="all">Todos</option>
+                <option value="active">Ativos</option>
+                <option value="inactive">Inativos</option>
+              </select>
             </div>
             <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
@@ -208,107 +442,61 @@
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Nome
+                      Visitante
                     </th>
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Nº Processo
+                      Documento
                     </th>
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Crime
+                      Relação
                     </th>
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Data Entrada
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Pena (anos)
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Término Previsto
+                      Status
                     </th>
                   </tr>
                 </thead>
                 <tbody
-                  id="endingSoonTable"
+                  id="visitorsTable"
                   class="bg-white divide-y divide-gray-200"
-                >
-                  <!-- Dados serão inseridos via JavaScript -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Histórico de Movimentações -->
-          <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">
-              Histórico de Movimentações
-            </h2>
-            <div class="flex justify-between items-center mb-4">
-              <p class="text-gray-600">Últimas transferências e libertações</p>
-              <button
-                id="exportHistory"
-                class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-md text-sm hover:bg-indigo-200 transition duration-300"
-              >
-                Exportar
-              </button>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Data
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Nome
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Nº Processo
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Tipo
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Detalhes
-                    </th>
-                  </tr>
-                </thead>
-                <tbody
-                  id="historyTable"
-                  class="bg-white divide-y divide-gray-200"
-                >
-                  <!-- Dados serão inseridos via JavaScript -->
-                </tbody>
+                ></tbody>
               </table>
             </div>
           </div>
         </main>
       </div>
+
+      <!-- Footer -->
+      <footer class="bg-white text-gray-800 p-4 border-t border-gray-200">
+        <div class="flex justify-between items-center">
+          <p class="text-sm">© 2025 Khosta - Todos os direitos reservados</p>
+          <div class="flex space-x-4">
+            <a href="https://wa.me/1234567890" target="_blank" class="text-green-500">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/yourprofile" target="_blank" class="text-blue-500">
+              <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://github.com/yourusername" target="_blank" class="text-gray-400 hover:text-gray-300 transition duration-300">
+              <i class="fab fa-github text-xl"></i>
+            </a>
+          </div>
+        </div>
+        </div>
+      </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
     <script src="js/auth.js"></script>
     <script src="js/prisioneiros.js"></script>
+    <script src="js/visitantes.js"></script>
     <script src="js/relatorios.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/user-info.js"></script>
   </body>
 </html>

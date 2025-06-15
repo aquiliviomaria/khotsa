@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-pt">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Khosta Penal - Login</title>
+    <title>Khosta - Login</title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -12,83 +12,218 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #ffffff;
+        background-image: radial-gradient(
+            circle at 25% 50%,
+            rgba(99, 102, 241, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 50%,
+            rgba(99, 102, 241, 0.15) 0%,
+            transparent 50%
+          );
+      }
+
+      .login-card {
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        border-radius: 1.5rem;
+      }
+
+      .input-container {
+        position: relative;
+      }
+
+      .input-field {
+        background: rgba(30, 41, 59, 0.8);
+        transition: all 0.3s ease;
+        padding-top: 1.5rem;
+        padding-bottom: 0.5rem;
+      }
+
+      .input-field:focus {
+        background: rgba(30, 41, 59, 1);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        border-color: #6366f1;
+      }
+
+      .input-label {
+        position: absolute;
+        top: 1.25rem;
+        left: 1.25rem;
+        color: #93c5fd;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        pointer-events: none;
+      }
+
+      .input-field:focus + .input-label,
+      .input-field:not(:placeholder-shown) + .input-label {
+        top: 0.5rem;
+        font-size: 0.75rem;
+        color: #a5b4fc;
+      }
+
+      .login-btn {
+        background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(99, 102, 241, 0.4);
+      }
+
+      .login-btn:active {
+        transform: translateY(0);
+      }
+
+      .access-alert {
+        background: rgba(99, 102, 241, 0.15);
+        border-left: 4px solid #6366f1;
+        transition: all 0.3s ease;
+      }
+
+      .access-alert:hover {
+        background: rgba(99, 102, 241, 0.25);
+      }
+
+      .forgot-password {
+        color: #93c5fd;
+        transition: color 0.3s ease;
+      }
+
+      .forgot-password:hover {
+        color: #a5b4fc;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .logo-container:hover img {
+        animation: pulse 1s ease infinite;
+      }
+
+      /* Accessibility improvements */
+      .input-field:focus-visible {
+        outline: 2px solid #6366f1;
+        outline-offset: 2px;
+      }
+
+      .login-btn:focus-visible {
+        outline: 2px solid #a5b4fc;
+        outline-offset: 2px;
+      }
+      span {
+        color: #93c5fd;
+      }
+    </style>
   </head>
-  <body
-    class="bg-gray-900 text-white min-h-screen flex items-center justify-center"
-  >
-    <div class="login-container animate__animated animate__fadeIn">
-      <div
-        class="max-w-md w-full bg-gray-800 rounded-lg shadow-lg overflow-hidden p-8 space-y-6"
-      >
-        <div class="text-center">
-          <div class="flex justify-center mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 text-indigo-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-              />
-            </svg>
+  <body class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-md animate__animated animate__fadeInUp">
+      <div class="login-card p-8 sm:p-10 space-y-8">
+        <!-- Logo and Title -->
+        <div class="logo-container flex flex-col items-center space-y-4">
+          <img
+            src="assets/img/logo.png"
+            alt="Khosta"
+            class="h-20 w-20 rounded-full object-cover border-2 border-indigo-500/50 transition-all duration-300"
+          />
+          <div class="text-center">
+            <h1 class="text-3xl font-bold text-white tracking-tight">KHOSTA</h1>
+            <span>Sistema de Gestão Penal</span>
           </div>
-          <h1 class="text-3xl font-bold text-indigo-400">Khosta Penal</h1>
-          <p class="text-gray-400 mt-2">Sistema de Gestão Penitenciária</p>
+        </div>
+
+        <!-- Alerta de Acesso -->
+
+        <div
+          class="access-alert p-4 rounded-lg flex items-center justify-center space-x-2"
+        >
+          <svg
+            class="w-5 h-5 text-indigo-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <p class="text-sm text-indigo-200">
+            Acesso restrito somente a pessoal autorizado
+          </p>
         </div>
 
         <form id="loginForm" class="space-y-6">
-          <div class="space-y-2">
-            <label for="email" class="block text-sm font-medium text-gray-300"
-              >Email</label
-            >
+          <div class="input-container">
             <input
               type="email"
               id="email"
               name="email"
               required
-              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-              placeholder="seu@email.com"
+              class="w-full px-5 py-3 input-field text-white placeholder-transparent rounded-lg border border-gray-700/50 focus:outline-none"
+              placeholder="Email"
             />
+            <label for="email" class="input-label">Email</label>
           </div>
 
-          <div class="space-y-2">
-            <label
-              for="password"
-              class="block text-sm font-medium text-gray-300"
-              >Senha</label
-            >
+          <div class="input-container">
             <input
               type="password"
               id="password"
               name="password"
               required
-              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-              placeholder="••••••••"
+              class="w-full px-5 py-3 input-field text-white placeholder-transparent rounded-lg border border-gray-700/50 focus:outline-none"
+              placeholder="Senha"
             />
+            <label for="password" class="input-label">Senha</label>
           </div>
 
-          <div>
+          <div class="flex justify-end">
+            <a href="#" class="forgot-password text-sm hover:underline"
+              >Esqueceu a senha?</a
+            >
+          </div>
+
+          <div class="pt-2">
             <button
               type="submit"
-              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+              class="w-full login-btn text-white font-semibold py-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               Entrar
             </button>
           </div>
         </form>
 
-        <div class="text-center text-sm text-gray-400">
-          <p>Apenas pessoal autorizado pode acessar este sistema</p>
+        <div class="text-center pt-4">
+          <p class="text-xs text-indigo-300">
+            © Khosta Penal - Todos os direitos reservados
+          </p>
         </div>
       </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/auth.js"></script>
   </body>

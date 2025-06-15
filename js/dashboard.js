@@ -170,3 +170,82 @@ function getStatusBadgeClass(status) {
       return "bg-gray-100 text-gray-800";
   }
 }
+
+
+// dashboard.js
+document.addEventListener("DOMContentLoaded", function () {
+  // Sample data (replace with actual data from prisioneiros.js or backend)
+  const crimeData = {
+    labels: ["Furto", "Roubo", "Homicídio", "Tráfico de Drogas", "Outro"],
+    datasets: [
+      {
+        data: [20, 15, 10, 5, 10],
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  const penaltyData = {
+    labels: ["Prisioneiro A", "Prisioneiro B", "Prisioneiro C"],
+    datasets: [
+      {
+        label: "Dias Restantes",
+        data: [15, 30, 5],
+        backgroundColor: "#36A2EB",
+        borderColor: "#36A2EB",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Chart configurations
+  const crimeChartConfig = {
+    type: "pie",
+    data: crimeData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "top" },
+        title: { display: true, text: "Distribuição por Crime" },
+      },
+    },
+  };
+
+  const penaltyChartConfig = {
+    type: "bar",
+    data: penaltyData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "top" },
+        title: { display: true, text: "Penas que Terminam em Breve" },
+      },
+      scales: { y: { beginAtZero: true } },
+    },
+  };
+
+  // Render charts
+  const crimeDistributionChart = new Chart(
+    document.getElementById("crimeDistributionChart").getContext("2d"),
+    crimeChartConfig
+  );
+
+  const penaltiesEndingSoonChart = new Chart(
+    document.getElementById("penaltiesEndingSoonChart").getContext("2d"),
+    penaltyChartConfig
+  );
+
+  // Update welcome message with current time
+  const welcomeMessage = document.querySelector(".welcome-message");
+  const now = new Date();
+  welcomeMessage.textContent = `Bem-vindo! Hoje é ${now.toLocaleDateString(
+    "pt-BR",
+    { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+  )} às ${now.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })} CAT`;
+});
