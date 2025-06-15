@@ -13,6 +13,129 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <link rel="stylesheet" href="css/auth.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #ffffff;
+        background-image: radial-gradient(
+            circle at 25% 50%,
+            rgba(99, 102, 241, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 50%,
+            rgba(99, 102, 241, 0.15) 0%,
+            transparent 50%
+          );
+      }
+
+      .login-card {
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        border-radius: 1.5rem;
+      }
+
+      .input-container {
+        position: relative;
+      }
+
+      .input-field {
+        background: rgba(30, 41, 59, 0.8);
+        transition: all 0.3s ease;
+        padding-top: 1.5rem;
+        padding-bottom: 0.5rem;
+      }
+
+      .input-field:focus {
+        background: rgba(30, 41, 59, 1);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        border-color: #6366f1;
+      }
+
+      .input-label {
+        position: absolute;
+        top: 1.25rem;
+        left: 1.25rem;
+        color: #93c5fd;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        pointer-events: none;
+      }
+
+      .input-field:focus + .input-label,
+      .input-field:not(:placeholder-shown) + .input-label {
+        top: 0.5rem;
+        font-size: 0.75rem;
+        color: #a5b4fc;
+      }
+
+      .login-btn {
+        background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(99, 102, 241, 0.4);
+      }
+
+      .login-btn:active {
+        transform: translateY(0);
+      }
+
+      .access-alert {
+        background: rgba(99, 102, 241, 0.15);
+        border-left: 4px solid #6366f1;
+        transition: all 0.3s ease;
+      }
+
+      .access-alert:hover {
+        background: rgba(99, 102, 241, 0.25);
+      }
+
+      .forgot-password {
+        color: #93c5fd;
+        transition: color 0.3s ease;
+      }
+
+      .forgot-password:hover {
+        color: #a5b4fc;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .logo-container:hover img {
+        animation: pulse 1s ease infinite;
+      }
+
+      /* Accessibility improvements */
+      .input-field:focus-visible {
+        outline: 2px solid #6366f1;
+        outline-offset: 2px;
+      }
+
+      .login-btn:focus-visible {
+        outline: 2px solid #a5b4fc;
+        outline-offset: 2px;
+      }
+      span {
+        color: #93c5fd;
+      }
+    </style>
   </head>
   <body class="min-h-screen flex items-center justify-center p-4 sm:p-6">
     <div class="w-full max-w-md animate__animated animate__fadeInUp">
